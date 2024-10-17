@@ -40,7 +40,7 @@ export default function Body() {
           Save money, reduce carbon footprint, and make new friends along the way.
         </p>
         <p className="text-md mb-6 max-w-2xl mx-auto">
-          Whether you're commuting to work or taking a trip, our carpooling platform connects you with others heading your way.
+          Whether youre commuting to work or taking a trip, our carpooling platform connects you with others heading your way.
         </p>
       </section>
 
