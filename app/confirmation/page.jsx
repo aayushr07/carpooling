@@ -1,44 +1,75 @@
-"use client";
+"use client"; // Ensures this page is a client-side component
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Confirmation() {
   const searchParams = useSearchParams();
-  const passengers = searchParams.get("passengers");
-  const carType = searchParams.get("carType");
-  const passengerDetails = JSON.parse(searchParams.get("details") || "[]");
-  const totalFare = searchParams.get("fare"); // Get the total fare from query parameters
+  const [bookingDetails, setBookingDetails] = useState(null);
+  const router = useRouter();
 
+  useEffect(() => {
+    // Ensure code is running on the client side
+    if (typeof window !== "undefined") {
+      const params = Object.fromEntries(searchParams.entries());
+
+      // If no rideId is found, redirect to home
+      if (!params.rideId) {
+        router.push("/");
+      } else {
+        // Parse and set the booking details from URL parameters
+        setBookingDetails({
+          passengers: params.passengers,
+          carType: params.carType,
+          source: JSON.parse(params.source),
+          destination: JSON.parse(params.destination),
+          time: params.time,
+          fare: params.fare,
+          sourceName: params.sourceName,
+          destinationName: params.destinationName,
+          passengerDetails: JSON.parse(params.details),
+        });
+      }
+    }
+  }, [searchParams, router]);
+
+  // If bookingDetails is not available yet, show a loading message
+  if (!bookingDetails) {
+    return <p>Loading...</p>;
+  }
+
+  // Render the confirmation details once available
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Booking Confirmation</h1>
-      <p className="text-lg mb-4 text-center">Your booking was successful. Below are your details:</p>
+    <div className="flex justify-center items-center h-screen">
+      <div className="w-full max-w-md p-8 bg-white shadow-md rounded-lg">
+        <h2 className="text-2xl font-bold mb-4 text-gray-800">Booking Confirmation</h2>
+        <p className="text-lg mb-2"><strong>Passengers:</strong> {bookingDetails.passengers}</p>
+        <p className="text-lg mb-2"><strong>Car Type:</strong> {bookingDetails.carType}</p>
+        <p className="text-lg mb-2">
+          <strong>Source:</strong> {bookingDetails.sourceName} 
+        </p>
+        <p className="text-lg mb-2">
+          <strong>Destination:</strong> {bookingDetails.destinationName}
+        </p>
+        <p className="text-lg mb-2">
+          <strong>Time:</strong> {bookingDetails.time}
+        </p>
+        <p className="text-lg mb-2"><strong>Fare:</strong> ₹{bookingDetails.fare}</p>
 
-      <div className="bg-white p-8 shadow-md rounded-lg max-w-xl mx-auto">
-        <ul className="space-y-4">
-          <li>
-            <strong>Number of Passengers:</strong> {passengers}
-          </li>
-          <li>
-            <strong>Car Type:</strong> {carType}
-          </li>
-          <li>
-            <strong>Total Fare:</strong> ₹{totalFare} {/* Display the total fare */}
-          </li>
-          {passengerDetails.map((passenger, index) => (
-            <li key={index} className="border-t border-gray-200 pt-4">
-              <strong>Passenger {index + 1}:</strong> {passenger.name}, Age: {passenger.age}
+        <h3 className="text-lg font-bold mt-4 text-gray-800">Passenger Details:</h3>
+        <ul className="list-disc list-inside">
+          {bookingDetails.passengerDetails.map((passenger, index) => (
+            <li key={index}>
+              {passenger.name}, Age: {passenger.age}
             </li>
           ))}
         </ul>
-      </div>
 
-      <div className="text-center mt-6">
         <button
-          onClick={() => window.print()}
-          className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md font-semibold"
+          onClick={() => router.push("/")}
+          className="w-full mt-6 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600"
         >
-          Print Confirmation
+          Back to Home
         </button>
       </div>
     </div>

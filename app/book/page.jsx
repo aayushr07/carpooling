@@ -1,17 +1,17 @@
 "use client";
 
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import "leaflet/dist/leaflet.css";
-import { getDistance } from "geolib"; // Import geolib
+import { getDistance } from "geolib"; // Import geolib for distance calculation
 
 export default function BookRide() {
   const [passengers, setPassengers] = useState(1);
   const [passengerDetails, setPassengerDetails] = useState([{ name: "", age: "" }]);
   const [carType, setCarType] = useState("Sedan");
-  const [source, setSource] = useState(null); // For map
-  const [destination, setDestination] = useState(null); // For map
+  const [source, setSource] = useState(null); // For map source location
+  const [destination, setDestination] = useState(null); // For map destination location
   const [sourceName, setSourceName] = useState(""); // Source location name
   const [destinationName, setDestinationName] = useState(""); // Destination location name
   const [time, setTime] = useState("");
@@ -19,26 +19,27 @@ export default function BookRide() {
   const [fare, setFare] = useState(0); // Fare calculation
   const router = useRouter();
 
-  // Function to add markers for selecting source and destination
+  // Function to handle selecting locations on the map
   function LocationSelector() {
     useMapEvents({
       click(e) {
         const { lat, lng } = e.latlng;
         if (selecting === "source") {
           setSource({ lat, lng });
-          reverseGeocode(lat, lng, setSourceName); // Fetch source name from coordinates
+          reverseGeocode(lat, lng, setSourceName); // Fetch source name
         } else if (selecting === "destination") {
           setDestination({ lat, lng });
-          reverseGeocode(lat, lng, setDestinationName); // Fetch destination name from coordinates
-          calculateFare({ lat, lng }); // Calculate fare when destination is set
+          reverseGeocode(lat, lng, setDestinationName); // Fetch destination name
+          calculateFare({ lat, lng }); // Calculate fare after selecting destination
         }
       },
     });
     return null;
   }
 
+  // Reverse geocoding to fetch location names
   const reverseGeocode = async (lat, lng, setName) => {
-    if (typeof window === "undefined") return; // Prevent execution on the server
+    if (typeof window === "undefined") return; // Prevent server-side execution
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
@@ -51,13 +52,14 @@ export default function BookRide() {
     }
   };
 
+  // Calculate fare based on distance
   const calculateFare = (destination) => {
     if (source) {
-      const distanceInMeters = getDistance(source, destination); // Get distance in meters
-      const distanceInKm = distanceInMeters / 1000; // Convert to kilometers
-      const farePerKm = 10; // Set fare rate per kilometer
-      const calculatedFare = distanceInKm * farePerKm; // Calculate total fare
-      setFare(calculatedFare); // Update fare state
+      const distanceInMeters = getDistance(source, destination);
+      const distanceInKm = distanceInMeters / 1000; // Convert meters to kilometers
+      const farePerKm = 10; // Fare rate per kilometer
+      const calculatedFare = distanceInKm * farePerKm; // Total fare
+      setFare(calculatedFare); // Update state
     }
   };
 
@@ -74,6 +76,7 @@ export default function BookRide() {
       alert("Please select both source and destination on the map.");
       return;
     }
+
     const bookingFare = fare * passengers;
     const bookingInfo = {
       passengers,
@@ -82,7 +85,7 @@ export default function BookRide() {
       source,
       destination,
       time,
-      fare: bookingFare, // Include fare in the booking info
+      fare: bookingFare, // Include fare
       sourceName, // Include source name
       destinationName, // Include destination name
     };
@@ -95,16 +98,15 @@ export default function BookRide() {
 
     if (res.ok) {
       const { rideId } = await res.json();
-
       const query = new URLSearchParams({
         passengers: bookingInfo.passengers,
         carType: bookingInfo.carType,
         source: JSON.stringify(bookingInfo.source),
         destination: JSON.stringify(bookingInfo.destination),
         time: bookingInfo.time,
-        fare: bookingInfo.fare, // Add fare to the query
-        sourceName: bookingInfo.sourceName, // Add source name to query
-        destinationName: bookingInfo.destinationName, // Add destination name to query
+        fare: bookingInfo.fare, // Add fare
+        sourceName: bookingInfo.sourceName,
+        destinationName: bookingInfo.destinationName,
         details: JSON.stringify(bookingInfo.passengerDetails),
         rideId,
       }).toString();
@@ -221,6 +223,7 @@ export default function BookRide() {
                 value={passenger.name}
                 onChange={(e) => handlePassengerChange(index, "name", e.target.value)}
                 className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                required
               />
             </div>
             <div>
@@ -233,12 +236,13 @@ export default function BookRide() {
                 value={passenger.age}
                 onChange={(e) => handlePassengerChange(index, "age", e.target.value)}
                 className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                required
               />
             </div>
           </div>
         ))}
 
-        {/* Car Type Selection */}
+        {/* Car Type */}
         <div>
           <label htmlFor="carType" className="block text-sm font-medium text-gray-700">
             Car Type
@@ -251,16 +255,16 @@ export default function BookRide() {
           >
             <option value="Sedan">Sedan</option>
             <option value="SUV">SUV</option>
-            <option value="Hatchback">Hatchback</option>
             <option value="Luxury">Luxury</option>
           </select>
         </div>
 
+        {/* Submit button */}
         <button
           type="submit"
-          className="w-full p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          className="w-full p-3 text-white bg-blue-500 rounded-md hover:bg-blue-600"
         >
-          Book Ride
+          Confirm Booking
         </button>
       </form>
     </div>
