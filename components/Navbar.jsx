@@ -55,9 +55,9 @@ const Navbar = () => {
           className="md:hidden bg-gray-800 p-5 rounded-lg"
         >
           <a href="/" className="block text-white py-2 hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">Home</a>
-          <a href="#services" className="block text-white py-2 hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">Services</a>
-          <a href="#about" className="block text-white py-2 hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">About</a>
-          <a href="#contact" className="block text-white py-2 hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">Contact</a>
+          <a href="/form" className="block text-white py-2 hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">Services</a>
+          <a href="/#about" className="block text-white py-2 hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">About</a>
+          <a href="/contact" className="block text-white py-2 hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">Contact</a>
           {session ? (
             <>
               <a href="/profile" className="block text-white py-2 hover:text-blue-400 transition-colors duration-300 transform hover:scale-105">Profile</a>

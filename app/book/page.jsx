@@ -1,7 +1,7 @@
 "use client";
 
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import "leaflet/dist/leaflet.css";
 import { getDistance } from "geolib"; // Import geolib
@@ -38,6 +38,7 @@ export default function BookRide() {
   }
 
   const reverseGeocode = async (lat, lng, setName) => {
+    if (typeof window === "undefined") return; // Prevent execution on the server
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
@@ -101,8 +102,7 @@ export default function BookRide() {
         source: JSON.stringify(bookingInfo.source),
         destination: JSON.stringify(bookingInfo.destination),
         time: bookingInfo.time,
-        fare: bookingInfo.fare,// Add fare to the query
-        
+        fare: bookingInfo.fare, // Add fare to the query
         sourceName: bookingInfo.sourceName, // Add source name to query
         destinationName: bookingInfo.destinationName, // Add destination name to query
         details: JSON.stringify(bookingInfo.passengerDetails),
@@ -167,7 +167,6 @@ export default function BookRide() {
               <p className="text-lg font-bold text-gray-800">Distance: {(fare / 10).toFixed(2)} km</p>
               <p className="text-lg font-bold text-gray-800">Fare per passenger: ₹{fare.toFixed(2)}</p>
               <p className="text-lg font-bold text-gray-800">Total Fare: ₹{(fare * passengers).toFixed(2)}</p>
-              
             </div>
           )}
         </div>
@@ -239,7 +238,7 @@ export default function BookRide() {
           </div>
         ))}
 
-        {/* Car Type */}
+        {/* Car Type Selection */}
         <div>
           <label htmlFor="carType" className="block text-sm font-medium text-gray-700">
             Car Type
@@ -253,13 +252,13 @@ export default function BookRide() {
             <option value="Sedan">Sedan</option>
             <option value="SUV">SUV</option>
             <option value="Hatchback">Hatchback</option>
-            <option value="Minivan">Minivan</option>
+            <option value="Luxury">Luxury</option>
           </select>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors duration-200"
+          className="w-full p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
           Book Ride
         </button>
