@@ -1,5 +1,5 @@
 "use client"; // Ensures this page is a client-side component
-
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -40,6 +40,7 @@ export default function Confirmation() {
 
   // Render the confirmation details once available
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <div className="flex justify-center items-center h-screen">
       <div className="w-full max-w-md p-8 bg-white shadow-md rounded-lg">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">Booking Confirmation</h2>
@@ -73,5 +74,6 @@ export default function Confirmation() {
         </button>
       </div>
     </div>
+    </Suspense>
   );
 }
