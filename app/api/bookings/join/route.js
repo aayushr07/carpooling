@@ -30,11 +30,17 @@ export async function POST(req) {
       });
     }
 
+    // Append selectedPoint to each passenger's details
+    const passengersWithPoints = joinData.passengerDetails.map(passenger => ({
+      ...passenger,
+      selectedPoint: joinData.selectedPoint, // Add the selected intermediate point to each passenger
+    }));
+
     // Update the ride with the new passenger information
     const updatedRide = await db.collection("bookings").updateOne(
       { _id: objectId },
       {
-        $push: { passengerDetails: { $each: joinData.passengerDetails } },
+        $push: { passengerDetails: { $each: passengersWithPoints } },
         $inc: { availableSeats: -passengersToAdd }, // Decrease available seats by the number of passengers added
         $inc: { passengers: passengersToAdd }, // Increase the passenger count by the number of passengers added
       }
